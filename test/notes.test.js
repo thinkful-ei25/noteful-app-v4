@@ -14,10 +14,7 @@ const Folder = require('../models/folder');
 const User = require('../models/user');
 const { TEST_MONGODB_URI, JWT_SECRET } = require('../config');
 
-const seedNotes = require('../db/seed/notes');
-const seedFolders = require('../db/seed/folders');
-const seedTags = require('../db/seed/tags');
-const seedUsers = require('../db/seed/users');
+const { folders, notes, tags, users } = require('../db/data');
 
 chai.use(chaiHttp);
 const expect = chai.expect;
@@ -28,19 +25,21 @@ describe('Noteful API - Notes', function () {
   let user = {};
   let token;
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI)
-      .then(() => mongoose.connection.db.dropDatabase());
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true })
+      .then(() => Promise.all([
+        Note.deleteMany(),
+        Folder.deleteMany(),
+        Tag.deleteMany(),
+        User.deleteMany()
+      ]));
   });
 
   beforeEach(function () {
     return Promise.all([
-      User.insertMany(seedUsers),
-      User.createIndexes(),
-      Note.insertMany(seedNotes),
-      Folder.insertMany(seedFolders),
-      Folder.createIndexes(),
-      Tag.insertMany(seedTags),
-      Tag.createIndexes(),
+      Note.insertMany(notes),
+      Folder.insertMany(folders),
+      Tag.insertMany(tags),
+      User.insertMany(users)
     ])
       .then(([users]) => {
         user = users[0];
@@ -50,7 +49,12 @@ describe('Noteful API - Notes', function () {
 
   afterEach(function () {
     sandbox.restore();
-    return mongoose.connection.db.dropDatabase();
+    return Promise.all([
+      Note.deleteMany(),
+      Folder.deleteMany(),
+      Tag.deleteMany(),
+      User.deleteMany()
+    ]);
   });
 
   after(function () {
@@ -785,3 +789,4 @@ describe('Noteful API - Notes', function () {
   });
 
 });
+

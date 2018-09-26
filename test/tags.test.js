@@ -11,11 +11,9 @@ const app = require('../server');
 const Tag = require('../models/tag');
 const User = require('../models/user');
 const Note = require('../models/note');
+const { TEST_MONGODB_URI } = require('../config');
 
-const seedTags = require('../db/seed/tags');
-const seedUsers = require('../db/seed/users');
-const seedNotes = require('../db/seed/notes');
-const { TEST_MONGODB_URI, JWT_SECRET } = require('../config');
+const { notes, tags, users } = require('../db/data');
 
 chai.use(chaiHttp);
 const expect = chai.expect;
@@ -26,26 +24,29 @@ describe('Noteful API - Tags', function () {
   let user;
   let token;
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI)
-      .then(() => mongoose.connection.db.dropDatabase());
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true })
+      .then(() => Promise.all([
+        Note.deleteMany(),
+        Tag.deleteMany(),
+        User.deleteMany()
+      ]));
   });
 
   beforeEach(function () {
     return Promise.all([
-      User.insertMany(seedUsers),
-      Tag.insertMany(seedTags),
-      Tag.createIndexes(),
-      Note.insertMany(seedNotes)
-    ])
-      .then(([users]) => {
-        user = users[0];
-        token = jwt.sign({ user }, JWT_SECRET, { subject: user.username });
-      });
+      Tag.insertMany(tags),
+      Note.insertMany(notes),
+      User.insertMany(users)
+    ]);
   });
 
   afterEach(function () {
     sandbox.restore();
-    return mongoose.connection.db.dropDatabase();
+    return Promise.all([
+      Note.deleteMany(),
+      Tag.deleteMany(),
+      User.deleteMany()
+    ]);
   });
 
   after(function () {

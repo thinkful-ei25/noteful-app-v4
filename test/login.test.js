@@ -23,7 +23,7 @@ describe('Noteful API - Login', function () {
 
   before(function () {
     return mongoose.connect(TEST_MONGODB_URI)
-      .then(() => mongoose.connection.db.dropDatabase());
+      .then(() => User.deleteMany());
   });
 
   beforeEach(function () {
@@ -37,7 +37,7 @@ describe('Noteful API - Login', function () {
   });
 
   afterEach(function () {
-    return mongoose.connection.db.dropDatabase();
+    return User.deleteMany();
   });
 
   after(function () {
@@ -58,7 +58,7 @@ describe('Noteful API - Login', function () {
 
           expect(payload.user).to.not.have.property('password');
           expect(payload.user.id).to.equal(_id);
-          expect(payload.user.username).to.deep.equal(username);
+          expect(payload.user.username).to.deep.equal(username);          
         });
     });
 

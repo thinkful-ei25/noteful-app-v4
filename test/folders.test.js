@@ -11,11 +11,9 @@ const app = require('../server');
 const Folder = require('../models/folder');
 const User = require('../models/user');
 const Note = require('../models/note');
-
-const seedFolders = require('../db/seed/folders');
-const seedUsers = require('../db/seed/users');
-const seedNotes = require('../db/seed/notes');
 const { TEST_MONGODB_URI, JWT_SECRET } = require('../config');
+
+const { folders, notes, users } = require('../db/data');
 
 chai.use(chaiHttp);
 const expect = chai.expect;
@@ -26,32 +24,38 @@ describe('Noteful API - Folders', function () {
   let user;
   let token;
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI)
-      .then(() => mongoose.connection.db.dropDatabase());
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true })
+      .then(() => Promise.all([
+        Note.deleteMany(),
+        Folder.deleteMany(),
+        User.deleteMany()
+      ]));
   });
 
   beforeEach(function () {
     return Promise.all([
-      User.insertMany(seedUsers),
-      Folder.insertMany(seedFolders),
-      Folder.createIndexes(),
-      Note.insertMany(seedNotes)
-    ])
-      .then(([users]) => {
-        user = users[0];
-        token = jwt.sign({ user }, JWT_SECRET, { subject: user.username });
-      });
+      Folder.insertMany(folders),
+      Note.insertMany(notes),
+      User.insertMany(notes)
+    ]).then(([users]) => {
+      user = users[0];
+      token = jwt.sign({ user }, JWT_SECRET, { subject: user.username });
+    });
   });
 
   afterEach(function () {
     sandbox.restore();
-    return mongoose.connection.db.dropDatabase();
+    return Promise.all([
+      Note.deleteMany(), 
+      Folder.deleteMany(),
+      User.deleteMany()
+    ]);
   });
 
   after(function () {
     return mongoose.disconnect();
   });
-
+  
   describe('GET /api/folders', function () {
 
     it('should return a list sorted with the correct number of folders', function () {
