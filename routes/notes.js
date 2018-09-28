@@ -18,7 +18,7 @@ function validateFolderId(folderId, userId) {
     return Promise.reject(err);
   }
 
-  return Folder.count({ _id: folderId, userId })
+  return Folder.countDocuments({ _id: folderId, userId })
     .then(count => {
       if (count === 0) {
         const err = new Error('The `folderId` is not valid');

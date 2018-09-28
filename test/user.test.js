@@ -19,20 +19,21 @@ describe('Noteful API - Users', function () {
   const fullname = 'Example User';
 
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI)
-      .then(() => mongoose.connection.db.dropDatabase());
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true })
+      .then(() => User.createIndexes());
   });
 
   beforeEach(function () {
-    return User.createIndexes();
+    // noop
   });
 
   afterEach(function () {
-    return mongoose.connection.db.dropDatabase();
+    return User.deleteMany();
   });
 
   after(function () {
-    return mongoose.disconnect();
+    return mongoose.connection.db.dropDatabase()
+      .then(() => mongoose.disconnect());
   });
 
   describe('POST /api/users', function () {

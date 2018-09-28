@@ -12,9 +12,7 @@ const Folder = require('../models/folder');
 const User = require('../models/user');
 const Note = require('../models/note');
 
-const seedFolders = require('../db/seed/folders');
-const seedUsers = require('../db/seed/users');
-const seedNotes = require('../db/seed/notes');
+const { folders, notes, users } = require('../db/data');
 const { TEST_MONGODB_URI, JWT_SECRET } = require('../config');
 
 chai.use(chaiHttp);
@@ -26,16 +24,15 @@ describe('Noteful API - Folders', function () {
   let user;
   let token;
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI)
-      .then(() => mongoose.connection.db.dropDatabase());
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true })
+      .then(() => Folder.createIndexes());
   });
 
   beforeEach(function () {
     return Promise.all([
-      User.insertMany(seedUsers),
-      Folder.insertMany(seedFolders),
-      Folder.createIndexes(),
-      Note.insertMany(seedNotes)
+      User.insertMany(users),
+      Folder.insertMany(folders),
+      Note.insertMany(notes)
     ])
       .then(([users]) => {
         user = users[0];
@@ -45,11 +42,16 @@ describe('Noteful API - Folders', function () {
 
   afterEach(function () {
     sandbox.restore();
-    return mongoose.connection.db.dropDatabase();
+    return Promise.all([
+      Note.deleteMany(),
+      Folder.deleteMany(),
+      User.deleteMany()
+    ]);
   });
 
   after(function () {
-    return mongoose.disconnect();
+    return mongoose.connection.db.dropDatabase()
+      .then(() => mongoose.disconnect());
   });
 
   describe('GET /api/folders', function () {
@@ -401,7 +403,7 @@ describe('Noteful API - Folders', function () {
         .then(function (res) {
           expect(res).to.have.status(204);
           expect(res.body).to.be.empty;
-          return Folder.count({ _id: data.id });
+          return Folder.countDocuments({ _id: data.id });
         })
         .then(count => {
           expect(count).to.equal(0);
@@ -420,7 +422,7 @@ describe('Noteful API - Folders', function () {
         .then(function (res) {
           expect(res).to.have.status(204);
           expect(res.body).to.be.empty;
-          return Note.count({ folderId });
+          return Note.countDocuments({ folderId });
         })
         .then(count => {
           expect(count).to.equal(0);

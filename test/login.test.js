@@ -22,8 +22,7 @@ describe('Noteful API - Login', function () {
   const password = 'examplePass';
 
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI)
-      .then(() => mongoose.connection.db.dropDatabase());
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true });
   });
 
   beforeEach(function () {
@@ -37,11 +36,12 @@ describe('Noteful API - Login', function () {
   });
 
   afterEach(function () {
-    return mongoose.connection.db.dropDatabase();
+    return User.deleteMany();
   });
 
   after(function () {
-    return mongoose.disconnect();
+    return mongoose.connection.db.dropDatabase()
+      .then(() => mongoose.disconnect());
   });
 
   describe('Noteful /api/login', function () {

@@ -4,6 +4,7 @@ const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const passport = require('passport');
+const cors = require('cors');
 
 const { PORT, MONGODB_URI } = require('./config');
 const localStrategy = require('./passport/local');
@@ -25,6 +26,8 @@ app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'common', {
 
 // Create a static webserver
 app.use(express.static('public'));
+
+app.use(cors());
 
 // Parse request body
 app.use(express.json());
@@ -57,14 +60,13 @@ app.use((err, req, res, next) => {
     res.status(err.status).json(errBody);
   } else {
     res.status(500).json({ message: 'Internal Server Error' });
-    if (err.name !== 'FakeError') { console.log(err); }
   }
 });
 
 // Listen for incoming connections
 if (require.main === module) {
   // Connect to DB and Listen for incoming connections
-  mongoose.connect(MONGODB_URI)
+  mongoose.connect(MONGODB_URI, {useNewUrlParser: true })
     .then(instance => {
       const conn = instance.connections[0];
       console.info(`Connected to: mongodb://${conn.host}:${conn.port}/${conn.name}`);

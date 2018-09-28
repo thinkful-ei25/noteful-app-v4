@@ -12,9 +12,7 @@ const Tag = require('../models/tag');
 const User = require('../models/user');
 const Note = require('../models/note');
 
-const seedTags = require('../db/seed/tags');
-const seedUsers = require('../db/seed/users');
-const seedNotes = require('../db/seed/notes');
+const { notes, tags, users } = require('../db/data');
 const { TEST_MONGODB_URI, JWT_SECRET } = require('../config');
 
 chai.use(chaiHttp);
@@ -26,16 +24,47 @@ describe('Noteful API - Tags', function () {
   let user;
   let token;
   before(function () {
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true })
+      .then(() => Tag.createIndexes());
+  });
+
+  beforeEach(function () {
+    return Promise.all([
+      User.insertMany(users),
+      Tag.insertMany(tags),
+      Note.insertMany(notes)
+    ])
+      .then(([users]) => {
+        user = users[0];
+        token = jwt.sign({ user }, JWT_SECRET, { subject: user.username });
+      });
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+    return Promise.all([
+      Note.deleteMany(),
+      Tag.deleteMany(),
+      User.deleteMany()
+    ]);
+  });
+
+  after(function () {
+    return mongoose.connection.db.dropDatabase()
+      .then(() => mongoose.disconnect());
+  });
+
+  /*   before(function () {
     return mongoose.connect(TEST_MONGODB_URI)
       .then(() => mongoose.connection.db.dropDatabase());
   });
 
   beforeEach(function () {
     return Promise.all([
-      User.insertMany(seedUsers),
-      Tag.insertMany(seedTags),
+      User.insertMany(users),
+      Tag.insertMany(tags),
       Tag.createIndexes(),
-      Note.insertMany(seedNotes)
+      Note.insertMany(notes)
     ])
       .then(([users]) => {
         user = users[0];
@@ -50,7 +79,7 @@ describe('Noteful API - Tags', function () {
 
   after(function () {
     return mongoose.disconnect();
-  });
+  }); */
 
   describe('GET /api/tags', function () {
 
@@ -406,7 +435,7 @@ describe('Noteful API - Tags', function () {
         .then(function (res) {
           expect(res).to.have.status(204);
           expect(res.body).to.be.empty;
-          return Tag.count({ _id: data.id });
+          return Tag.countDocuments({ _id: data.id });
         })
         .then(count => {
           expect(count).to.equal(0);
@@ -426,7 +455,7 @@ describe('Noteful API - Tags', function () {
         .then(function (res) {
           expect(res).to.have.status(204);
           expect(res.body).to.be.empty;
-          return Note.count({ tags: tagId });
+          return Note.countDocuments({ tags: tagId });
         })
         .then(count => {
           expect(count).to.equal(0);
