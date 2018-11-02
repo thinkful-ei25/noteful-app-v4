@@ -229,7 +229,7 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Note.schema.options.toObject, 'transform').throws('FakeError');
+      sandbox.stub(Note.schema.options.toJSON, 'transform').throws('FakeError');
 
       return chai.request(app)
         .get('/api/notes')
@@ -291,7 +291,7 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Note.schema.options.toObject, 'transform').throws('FakeError');
+      sandbox.stub(Note.schema.options.toJSON, 'transform').throws('FakeError');
       return Note.findOne()
         .then(data => {
           return chai.request(app)
@@ -461,7 +461,7 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Note.schema.options.toObject, 'transform').throws('FakeError');
+      sandbox.stub(Note.schema.options.toJSON, 'transform').throws('FakeError');
 
       const newItem = {
         title: 'The best article about cats ever!',
@@ -602,6 +602,7 @@ describe('Noteful API - Notes', function () {
         });
     });
 
+
     it('should respond with status 400 and an error message when `id` is not valid', function () {
       const updateItem = {
         title: 'What about dogs?!',
@@ -718,7 +719,7 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Note.schema.options.toObject, 'transform').throws('FakeError');
+      sandbox.stub(Note.schema.options.toJSON, 'transform').throws('FakeError');
 
       const updateItem = {
         title: 'What about dogs?!',
