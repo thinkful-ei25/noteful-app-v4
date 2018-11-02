@@ -24,7 +24,7 @@ describe('Noteful API - Folders', function () {
   let user;
   let token;
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true })
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
       .then(() => Promise.all([
         Note.deleteMany(),
         Folder.deleteMany(),
@@ -95,7 +95,7 @@ describe('Noteful API - Folders', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Folder.schema.options.toObject, 'transform').throws('FakeError');
+      sandbox.stub(Folder.schema.options.toJSON, 'transform').throws('FakeError');
       return chai.request(app).get('/api/folders')
         .set('Authorization', `Bearer ${token}`)
         .then(res => {
@@ -151,7 +151,7 @@ describe('Noteful API - Folders', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Folder.schema.options.toObject, 'transform').throws('FakeError');
+      sandbox.stub(Folder.schema.options.toJSON, 'transform').throws('FakeError');
 
       let data;
       return Folder.findOne()
@@ -242,7 +242,7 @@ describe('Noteful API - Folders', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Folder.schema.options.toObject, 'transform').throws('FakeError');
+      sandbox.stub(Folder.schema.options.toJSON, 'transform').throws('FakeError');
 
       const newItem = { name: 'newFolder' };
       return chai.request(app)
@@ -366,7 +366,7 @@ describe('Noteful API - Folders', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Folder.schema.options.toObject, 'transform').throws('FakeError');
+      sandbox.stub(Folder.schema.options.toJSON, 'transform').throws('FakeError');
 
       const updateItem = { name: 'Updated Name' };
       let data;

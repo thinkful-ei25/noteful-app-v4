@@ -24,7 +24,7 @@ describe('Noteful API - Tags', function () {
   let user;
   let token;
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true })
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
       .then(() => Promise.all([
         Note.deleteMany(),
         Tag.deleteMany(),
@@ -94,7 +94,7 @@ describe('Noteful API - Tags', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Tag.schema.options.toObject, 'transform').throws('FakeError');
+      sandbox.stub(Tag.schema.options.toJSON, 'transform').throws('FakeError');
 
       return chai.request(app)
         .get('/api/tags')
@@ -153,7 +153,7 @@ describe('Noteful API - Tags', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Tag.schema.options.toObject, 'transform').throws('FakeError');
+      sandbox.stub(Tag.schema.options.toJSON, 'transform').throws('FakeError');
 
       return Tag.findOne()
         .then(data => {
@@ -244,7 +244,7 @@ describe('Noteful API - Tags', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Tag.schema.options.toObject, 'transform').throws('FakeError');
+      sandbox.stub(Tag.schema.options.toJSON, 'transform').throws('FakeError');
 
       const newItem = { name: 'newTag' };
       return chai.request(app)
@@ -369,7 +369,7 @@ describe('Noteful API - Tags', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Tag.schema.options.toObject, 'transform').throws('FakeError');
+      sandbox.stub(Tag.schema.options.toJSON, 'transform').throws('FakeError');
 
       const updateItem = { name: 'Updated Name' };
       return Tag.findOne()

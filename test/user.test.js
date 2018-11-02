@@ -19,7 +19,7 @@ describe('Noteful API - Users', function () {
   const fullname = 'Example User';
 
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI)
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
       .then(() => User.deleteMany());
   });
 

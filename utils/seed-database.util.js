@@ -12,7 +12,7 @@ const User = require('../models/user');
 const { folders, notes, tags, users } = require('../db/data');
 
 console.log(`Connecting to mongodb at ${MONGODB_URI}`);
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true })
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
   .then(() => {
     console.info('Delete Data');
     return Promise.all([

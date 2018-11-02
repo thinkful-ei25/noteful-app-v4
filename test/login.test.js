@@ -22,7 +22,7 @@ describe('Noteful API - Login', function () {
   const password = 'examplePass';
 
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI)
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
       .then(() => User.deleteMany());
   });
 
